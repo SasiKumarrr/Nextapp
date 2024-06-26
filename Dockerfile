@@ -1,9 +1,16 @@
 # Dockerfile
-FROM httpd:alpine
+FROM nginx:alpine
 
-# Copy Next.js build files
-COPY .next /usr/local/apache2/htdocs/
+# Remove default nginx website
+RUN rm -rf /usr/share/nginx/html/*
 
-# Expose port 80
+# Copy build files into nginx web directory
+COPY .next /usr/share/nginx/html
+
+# Expose port 80 (default for nginx)
 EXPOSE 80
+
+# Command to run nginx
+CMD ["nginx", "-g", "daemon off;"]
+
 
