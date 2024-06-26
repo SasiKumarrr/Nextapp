@@ -1,4 +1,30 @@
-FROM nginx
-COPY .next /var/www/project
-COPY default.conf /etc/nginx/conf.d/default.conf
+# Use an official Node.js runtime as a parent image
+FROM node:14 AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the source code
+COPY . .
+
+# Build the Next.js application
+RUN npm run build
+
+# Use nginx as the production server
+FROM nginx:alpine
+
+# Copy the built app from the previous stage
+COPY --from=build /app/.next /usr/share/nginx/html
+
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80
 EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
